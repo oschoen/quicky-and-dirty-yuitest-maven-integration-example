@@ -1,0 +1,22 @@
+<html>
+<head>
+  <script src="http://yui.yahooapis.com/3.2.0/build/yui/yui-min.js"></script>
+  <script type="text/javascript" src="example-test.js"></script>
+</head>
+<body class="yui3-skin-sam  yui-skin-sam">
+<div id="testLogger"></div>
+
+<p id="example-node-1">Example Node</p>
+
+<script>
+  YUI().use('example-test', 'console', 'test-console', function (Y) {
+    var r = new Y.Console({
+      newestOnTop : false
+    });
+
+    r.render();
+    Y.Test.Runner.run();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>yuitest-maven-example</groupId>
+    <artifactId>yuitest-maven-example</artifactId>
+    <version>1.0</version>
+
+    <build>
+    <plugins>
+    
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>selenium-maven-plugin</artifactId>
+        <version>1.0.1</version>
+        <executions>
+          <execution>
+            <id>selenium-start</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start-server</goal>
+            </goals>
+            <configuration>
+              <background>true</background>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>selenium-stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop-server</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <id>run-yuitest</id>
+            <phase>integration-test</phase>
+            <configuration>
+              <target>
+
+                <mkdir dir="${project.build.directory}/yuitest-reports"/>
+                <java classname="com.yahoo.platform.yuitest.selenium.YUITestSeleniumDriver"
+                      fork="true"
+                      failonerror="false"
+                      resultproperty="erno"
+                  >
+                  <arg value="--erroronfail"/>
+                  <arg value="--resultsdir"/>
+                  <arg value="${project.build.directory}/yuitest-reports"/>
+                  <arg value="file:///${project.basedir}/src/test/js/example-test.html"/>
+                  <classpath>
+                    <pathelement location="vendor/yuitest-selenium-driver-1.0.0b1.jar"/>
+                    <path refid="maven.test.classpath"/>
+                  </classpath>
+                </java>
+
+                <echo file="${project.build.directory}/yuitest-reports/erno.txt" append="false">
+                  ${erno}
+                </echo>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>verify-yuitest</id>
+            <phase>verify</phase>
+            <configuration>
+              <target>
+                <condition property="yuitestAreFailed">
+                  <isfileselected file="${project.build.directory}/yuitest-reports/erno.txt">
+                    <containsregexp expression="[^0]"/>
+                  </isfileselected>
+                </condition>
+                <fail if="yuitestAreFailed" message="yui tests failed"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium</artifactId>
+      <version>2.0a7</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
